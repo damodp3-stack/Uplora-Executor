@@ -1,0 +1,6 @@
+{
+  "name": "Uplora 1B Quest - Business RPG & AI Command Center",
+  "description": "Gamified Business Operating System and AI COO for Uplora's journey from ₹40k/month to ₹1B Commerce-Tech empire.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
