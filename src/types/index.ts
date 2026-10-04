@@ -35,10 +35,14 @@ export interface Task {
   status: TaskStatus;
   dueDate: string;
   completedAt?: string;
+  completionResult?: string;
   missedReason?: string;
   missedNotes?: string;
   adaptedFromTaskId?: string;
   relatedRevenueTarget?: number;
+  revenueRelation?: number;
+  strategicRelation?: string;
+  estimatedEffortMinutes?: number;
 }
 
 export type LeadStage =
@@ -71,6 +75,8 @@ export interface Lead {
   status: LeadStage;
   lastContactDate?: string;
   nextFollowupDate?: string;
+  isHotLead?: boolean;
+  dealCycleDays?: number;
   notes: string;
   createdAt: string;
 }
@@ -83,6 +89,7 @@ export interface RevenueEntry {
   paymentDate: string;
   notes: string;
   xpAwarded: number;
+  isBenchmark?: boolean;
 }
 
 export interface DailyCheckin {
@@ -115,6 +122,21 @@ export interface Idea {
   createdAt: string;
 }
 
+export interface Experiment {
+  id: string;
+  ideaId?: string;
+  title: string;
+  hypothesis: string;
+  durationDays: number;
+  startDate: string;
+  endDate: string;
+  metricsTracked: string;
+  successCriteria: string;
+  outcome: 'running' | 'success' | 'failed' | 'inconclusive';
+  lessonsLearned?: string;
+  createdAt: string;
+}
+
 export interface StrategicDecision {
   id: string;
   title: string;
@@ -144,8 +166,38 @@ export interface MarketOpportunity {
   whyItMatters: string;
   potentialService: string;
   potentialRevenueEst: number;
-  status: 'unreviewed' | 'saved' | 'converted_to_idea' | 'dismissed';
+  status: 'unreviewed' | 'saved' | 'converted_to_idea' | 'converted_to_experiment' | 'dismissed';
   createdAt: string;
+}
+
+export interface CompanyMemoryItem {
+  id: string;
+  category: 'vision' | 'services' | 'pricing' | 'team' | 'lessons' | 'decisions' | 'rules';
+  key: string;
+  content: string;
+  updatedAt: string;
+}
+
+export interface AuditLog {
+  id: string;
+  timestamp: string;
+  actor: 'damo' | 'partner' | 'assistant' | 'ai_coo';
+  action: string;
+  tool?: string;
+  params?: any;
+  details?: string;
+  requiresApproval?: boolean;
+  approvalStatus?: 'pending' | 'approved' | 'rejected';
+}
+
+export interface ProposedAction {
+  id: string;
+  tool: string;
+  params: any;
+  explanation: string;
+  risk: string;
+  requiresApproval: boolean;
+  status: 'pending' | 'approved' | 'rejected';
 }
 
 export interface CompanyStatus {
@@ -160,6 +212,8 @@ export interface CompanyStatus {
   streakDays: number;
   activeLeadsCount: number;
   pipelineValue: number;
+  hotLeadsCount: number;
+  overdueFollowupsCount: number;
   healthScores: {
     revenue: number;
     sales: number;
@@ -192,4 +246,17 @@ export interface Achievement {
   xpReward: number;
   unlocked: boolean;
   unlockedAt?: string;
+}
+
+export interface CRMAnalytics {
+  totalLeads: number;
+  activeLeads: number;
+  pipelineValue: number;
+  wonValue: number;
+  winRate: number;
+  avgDealValue: number;
+  overdueFollowupsCount: number;
+  hotLeadsCount: number;
+  bySource: Record<string, { count: number; won: number; value: number }>;
+  stageCounts: Record<LeadStage, number>;
 }

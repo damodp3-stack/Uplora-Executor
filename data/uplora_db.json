@@ -1,0 +1,751 @@
+{
+  "company": {
+    "name": "Uplora",
+    "questTarget": 1000000000,
+    "monthlyTarget": 100000,
+    "currentRunRate": 40000,
+    "streakDays": 5
+  },
+  "users": [
+    {
+      "id": "damo",
+      "name": "Damo",
+      "role": "ceo",
+      "title": "CEO & Growth Commander",
+      "avatar": "👑",
+      "xp": 1180,
+      "level": 2,
+      "streak": 5,
+      "dailyGoal": "15 qualified sales calls & closing meetings",
+      "dailyQuota": 15,
+      "dailyCompleted": 10
+    },
+    {
+      "id": "partner",
+      "name": "Partner",
+      "role": "cto",
+      "title": "CTO & Delivery Commander",
+      "avatar": "⚔️",
+      "xp": 480,
+      "level": 1,
+      "streak": 4,
+      "dailyGoal": "Client deliverables & StoreIK architecture",
+      "dailyQuota": 3,
+      "dailyCompleted": 2
+    },
+    {
+      "id": "assistant",
+      "name": "Assistant",
+      "role": "lead_hunter",
+      "title": "Lead Hunter & Prospect Scout",
+      "avatar": "🎯",
+      "xp": 210,
+      "level": 1,
+      "streak": 2,
+      "dailyGoal": "30 qualified merchant leads enriched",
+      "dailyQuota": 30,
+      "dailyCompleted": 18,
+      "monthlyCost": 5000,
+      "monthlyAttributableRevenue": 8500
+    }
+  ],
+  "tasks": [
+    {
+      "id": "task-1791147793288",
+      "title": "Human-Approved Quest: Follow up with Annapoorna Spices",
+      "description": "",
+      "ownerId": "damo",
+      "layer": "daily",
+      "category": "sales",
+      "priority": "critical",
+      "difficulty": "medium",
+      "xpReward": 90,
+      "status": "pending",
+      "dueDate": "2026-10-04",
+      "revenueRelation": 12500,
+      "strategicRelation": "",
+      "estimatedEffortMinutes": 60
+    },
+    {
+      "id": "task-adapted-1791147793233",
+      "title": "Adapted Quota: 8 sales calls in 2-hour morning block",
+      "description": "Adapted from [Quota: 15 sales calls]. Reason: Higher priority came",
+      "ownerId": "damo",
+      "layer": "daily",
+      "category": "sales",
+      "priority": "high",
+      "difficulty": "easy",
+      "xpReward": 70,
+      "status": "pending",
+      "dueDate": "2026-10-04",
+      "adaptedFromTaskId": "task-1791147793222",
+      "revenueRelation": 5000,
+      "strategicRelation": "Rebuild daily execution streak",
+      "estimatedEffortMinutes": 60
+    },
+    {
+      "id": "task-1791147793222",
+      "title": "Quota: 15 sales calls",
+      "description": "",
+      "ownerId": "damo",
+      "layer": "daily",
+      "category": "sales",
+      "priority": "high",
+      "difficulty": "medium",
+      "xpReward": 120,
+      "status": "missed",
+      "dueDate": "2026-10-04",
+      "revenueRelation": 0,
+      "strategicRelation": "",
+      "estimatedEffortMinutes": 60,
+      "missedReason": "Higher priority came",
+      "missedNotes": "Client delivery fire occupied afternoon focus"
+    },
+    {
+      "id": "task-1791147793208",
+      "title": "Smoke Test: Pitch StoreIK to 5 Coimbatore Boutiques",
+      "description": "",
+      "ownerId": "damo",
+      "layer": "daily",
+      "category": "sales",
+      "priority": "high",
+      "difficulty": "medium",
+      "xpReward": 100,
+      "status": "completed",
+      "dueDate": "2026-10-04",
+      "revenueRelation": 15000,
+      "strategicRelation": "",
+      "estimatedEffortMinutes": 60,
+      "completedAt": "2026-10-04T21:03:13.216Z",
+      "completionResult": "Contacted 5 boutiques, 2 showed strong interest"
+    },
+    {
+      "id": "task-1",
+      "title": "Damo: 15 Qualified Sales Calls to Retail Merchants",
+      "description": "Call fashion, jewelry, and gourmet food sellers with unoptimized Instagram bios. Offer custom storefront + WhatsApp integration.",
+      "ownerId": "damo",
+      "layer": "daily",
+      "category": "sales",
+      "priority": "critical",
+      "difficulty": "hard",
+      "xpReward": 120,
+      "status": "pending",
+      "dueDate": "2026-10-04",
+      "relatedRevenueTarget": 100000
+    },
+    {
+      "id": "task-2",
+      "title": "Partner: Finish Client X Website Responsive Polish",
+      "description": "Deliver mobile layout verification, SSL configuration, and WhatsApp floating contact button for Tirupur Apparel client.",
+      "ownerId": "partner",
+      "layer": "daily",
+      "category": "delivery",
+      "priority": "high",
+      "difficulty": "medium",
+      "xpReward": 90,
+      "status": "pending",
+      "dueDate": "2026-10-04"
+    },
+    {
+      "id": "task-3",
+      "title": "Assistant: Log 30 Qualified Prospects with Verified WhatsApp",
+      "description": "Search local Coimbatore & Chennai merchants selling via Instagram only; gather owner direct phone numbers.",
+      "ownerId": "assistant",
+      "layer": "daily",
+      "category": "lead_gen",
+      "priority": "high",
+      "difficulty": "medium",
+      "xpReward": 75,
+      "status": "pending",
+      "dueDate": "2026-10-04"
+    },
+    {
+      "id": "task-4",
+      "title": "Weekly Mission: Close 2 Website Projects & Pitch StoreIK to 3 Boutiques",
+      "description": "Generate ₹20k+ in fresh advances while validating StoreIK early interest with merchant pain points.",
+      "ownerId": "damo",
+      "layer": "weekly",
+      "category": "sales",
+      "priority": "critical",
+      "difficulty": "boss",
+      "xpReward": 300,
+      "status": "pending",
+      "dueDate": "2026-10-10"
+    },
+    {
+      "id": "task-5",
+      "title": "Monthly Boss Battle: Slay the ₹1,00,000 Monthly Revenue Boss 👹",
+      "description": "Push total banked cash receipts beyond ₹1 Lakh. Transition Uplora from survival to predictable momentum.",
+      "ownerId": "damo",
+      "layer": "monthly",
+      "category": "strategy",
+      "priority": "critical",
+      "difficulty": "boss",
+      "xpReward": 750,
+      "status": "pending",
+      "dueDate": "2026-10-31"
+    },
+    {
+      "id": "task-6",
+      "title": "Side Quest: Audit 5 Competitor WhatsApp Storefront Pricing Models",
+      "description": "Analyze how Shopify, Bikayi, Dukaan, and local web agencies price WhatsApp automation in India.",
+      "ownerId": "damo",
+      "layer": "side_quest",
+      "category": "product",
+      "priority": "medium",
+      "difficulty": "easy",
+      "xpReward": 60,
+      "status": "completed",
+      "dueDate": "2026-10-08",
+      "completedAt": "2026-10-03T18:30:00.000Z"
+    }
+  ],
+  "leads": [
+    {
+      "id": "lead-1791147793239",
+      "businessName": "Vasantham Silks Coimbatore",
+      "contactName": "Mr. Vasanth",
+      "phone": "+919842199999",
+      "whatsapp": "919842199999",
+      "city": "Coimbatore",
+      "category": "Textiles",
+      "problemIdentified": "No online catalog; orders lost in Instagram DMs",
+      "proposedSolution": "StoreIK Storefront + WhatsApp Catalog",
+      "estimatedValue": 16000,
+      "leadSource": "Instagram",
+      "assignedTo": "damo",
+      "status": "won",
+      "isHotLead": false,
+      "dealCycleDays": 0,
+      "notes": "[2026-10-04]: Sent quote for ₹16,000\n[2026-10-04]: Advance received! Deal closed.",
+      "createdAt": "2026-10-04T21:03:13.239Z",
+      "lastContactDate": "2026-10-04"
+    },
+    {
+      "id": "lead-1",
+      "businessName": "Velan Silks & Sarees",
+      "contactName": "Mr. Velan",
+      "phone": "+919842100001",
+      "whatsapp": "919842100001",
+      "instagram": "https://instagram.com/velansilks_cbe",
+      "city": "Coimbatore",
+      "category": "Ethnic Wear",
+      "problemIdentified": "Takes saree orders through Instagram DMs manually; frequently misses customer messages and loses sales.",
+      "proposedSolution": "StoreIK Storefront + Automated WhatsApp Catalog with UPI QR generation.",
+      "estimatedValue": 14000,
+      "leadSource": "Instagram",
+      "assignedTo": "damo",
+      "status": "proposal",
+      "lastContactDate": "2026-10-02",
+      "nextFollowupDate": "2026-10-05",
+      "notes": "Sent quote for ₹14,000 (site + catalog). Interested, reviewing payment structure.",
+      "createdAt": "2026-09-28T10:00:00.000Z"
+    },
+    {
+      "id": "lead-2",
+      "businessName": "Annapoorna Homemade Spices",
+      "contactName": "Lakshmi Narayanan",
+      "phone": "+919443200002",
+      "whatsapp": "919443200002",
+      "instagram": "https://instagram.com/annapoornaspices",
+      "city": "Madurai",
+      "category": "Organic Foods",
+      "problemIdentified": "Has 12,000 Instagram followers but no website; orders captured via messy Google Form.",
+      "proposedSolution": "E-commerce website with Razorpay & Shiprocket courier auto-dispatch.",
+      "estimatedValue": 12500,
+      "leadSource": "Instagram",
+      "assignedTo": "damo",
+      "status": "interested",
+      "lastContactDate": "2026-10-03",
+      "nextFollowupDate": "2026-10-06",
+      "notes": "Very excited about automated courier label generation. Follow up Tuesday.",
+      "createdAt": "2026-09-30T14:30:00.000Z"
+    },
+    {
+      "id": "lead-3",
+      "businessName": "Kaveri Dental Care",
+      "contactName": "Dr. S. Kaveri",
+      "phone": "+919894000003",
+      "whatsapp": "919894000003",
+      "city": "Chennai",
+      "category": "Healthcare & Clinic",
+      "problemIdentified": "No Google Maps presence or website; relying strictly on walk-ins.",
+      "proposedSolution": "Local SEO + Clean 5-page Responsive Clinic Site with WhatsApp appointment booking.",
+      "estimatedValue": 8500,
+      "leadSource": "Google Maps",
+      "assignedTo": "assistant",
+      "status": "won",
+      "lastContactDate": "2026-10-01",
+      "notes": "Deal closed! Advance of ₹5,000 received. Partner currently developing.",
+      "createdAt": "2026-09-22T09:15:00.000Z"
+    },
+    {
+      "id": "lead-4",
+      "businessName": "Urban Trendz Menswear",
+      "contactName": "Karthik Raja",
+      "phone": "+919789000004",
+      "whatsapp": "919789000004",
+      "city": "Tirupur",
+      "category": "Fashion Retail",
+      "problemIdentified": "Slow website on Wix; loading takes 7 seconds, mobile layout broken.",
+      "proposedSolution": "Custom fast React/Vite storefront + WhatsApp cart.",
+      "estimatedValue": 10000,
+      "leadSource": "Referral",
+      "assignedTo": "damo",
+      "status": "connected",
+      "lastContactDate": "2026-10-04",
+      "nextFollowupDate": "2026-10-07",
+      "notes": "Conducted audit. Promised to send speed comparison video.",
+      "createdAt": "2026-10-01T16:00:00.000Z"
+    }
+  ],
+  "revenue": [
+    {
+      "id": "rev-1791147793257",
+      "clientName": "Vasantham Silks Coimbatore",
+      "serviceType": "website",
+      "amount": 8000,
+      "paymentDate": "2026-10-04",
+      "notes": "50% project advance",
+      "xpAwarded": 80,
+      "isBenchmark": false
+    },
+    {
+      "id": "rev-1",
+      "clientName": "Kaveri Dental Care",
+      "serviceType": "website",
+      "amount": 5000,
+      "paymentDate": "2026-10-01",
+      "notes": "50% project advance for 5-page appointment website.",
+      "xpAwarded": 50
+    },
+    {
+      "id": "rev-2",
+      "clientName": "Apex Logistics Coimbatore",
+      "serviceType": "website",
+      "amount": 12000,
+      "paymentDate": "2026-09-24",
+      "notes": "Full payment for logistics tracking landing page.",
+      "xpAwarded": 120
+    },
+    {
+      "id": "rev-3",
+      "clientName": "Sri Balaji Bakery & Sweets",
+      "serviceType": "whatsapp_automation",
+      "amount": 8500,
+      "paymentDate": "2026-09-18",
+      "notes": "Festival sweet pre-booking WhatsApp automation bot.",
+      "xpAwarded": 85
+    },
+    {
+      "id": "rev-4",
+      "clientName": "Studio Aura Photography",
+      "serviceType": "website",
+      "amount": 15000,
+      "paymentDate": "2026-09-08",
+      "notes": "Portfolio website + wedding package booking engine.",
+      "xpAwarded": 150
+    }
+  ],
+  "checkins": [
+    {
+      "id": "chk-1791147793269",
+      "userId": "damo",
+      "date": "2026-10-04",
+      "completedSummary": "Closed Vasantham Silks advance, completed 9 calls",
+      "missedSummary": "Missed side quest",
+      "biggestWin": "₹8,000 advance banked from Vasantham Silks",
+      "blockers": "None",
+      "keyOutcome": "Validated ₹16k price point for boutique sites",
+      "revenueLogged": 8000,
+      "tomorrowFocus": "Follow up on Velan Silks and unblock Assistant",
+      "createdAt": "2026-10-04T21:03:13.269Z"
+    },
+    {
+      "id": "chk-1",
+      "userId": "damo",
+      "date": "2026-10-03",
+      "completedSummary": "Completed 9 calls, delivered Kaveri Dental demo to Dr. Kaveri, audited competitor pricing.",
+      "missedSummary": "Missed 6 calls out of 15 quota.",
+      "missedReasonCategory": "Higher priority came",
+      "biggestWin": "Velan Silks agreed to review proposal; deal size ₹14,000.",
+      "blockers": "Assistant gave 8 numbers with dead WhatsApp channels.",
+      "keyOutcome": "Validated that local merchants want instant UPI QR in WhatsApp.",
+      "revenueLogged": 0,
+      "tomorrowFocus": "Follow up with Velan Silks and enforce stricter lead qualification for Assistant.",
+      "createdAt": "2026-10-03T19:00:00.000Z"
+    }
+  ],
+  "ideas": [
+    {
+      "id": "idea-1",
+      "title": "StoreIK: Instant WhatsApp & Instagram DM Checkout Bot",
+      "problem": "Merchants spend 4 hours daily copying bank details and taking payment screenshots in DMs.",
+      "targetCustomer": "Indian boutique clothing, organic foods, and handmade craft merchants selling on Instagram.",
+      "proposedSolution": "Lightweight catalog link where customers tap \"Buy on WhatsApp\", auto-generating pre-filled cart messages with instant UPI QR.",
+      "potentialRevenue": 250000,
+      "difficulty": "medium",
+      "costEstimate": 15000,
+      "status": "validating",
+      "quarantineDaysRemaining": 4,
+      "validationMethod": "Test with 3 existing website clients (Velan Silks, Annapoorna) before building full SaaS.",
+      "createdAt": "2026-10-01T12:00:00.000Z"
+    },
+    {
+      "id": "idea-2",
+      "title": "Akyzer: Premium Linen Shirt D2C Test Drop",
+      "problem": "Founder wants to test e-commerce dropshipping brand under Akyzer brand.",
+      "targetCustomer": "Urban young professionals in Bangalore / Chennai.",
+      "proposedSolution": "Small batch of 50 shirts manufactured locally in Tirupur, marketed via Instagram reels.",
+      "potentialRevenue": 60000,
+      "difficulty": "high",
+      "costEstimate": 35000,
+      "status": "quarantine",
+      "quarantineDaysRemaining": 6,
+      "validationMethod": "Pre-order landing page with 10 paid deposits before buying inventory.",
+      "createdAt": "2026-10-03T10:00:00.000Z"
+    }
+  ],
+  "decisions": [
+    {
+      "id": "dec-1791147793279",
+      "title": "Standardize Minimum Website Deal Size at ₹10,000",
+      "rationale": "Sub-₹8k deals consume too much custom delivery time per rupee banked.",
+      "authorId": "damo",
+      "authorName": "Damo",
+      "expectedOutcome": "Increase average deal size by 25% without sacrificing close rate.",
+      "status": "approved",
+      "reviewDate": "2026-11-03",
+      "riskAssessment": {
+        "revenueImpact": "Moderate risk to short-term runway.",
+        "customerRisk": "Requires continuous communication.",
+        "teamCapacity": "Requires shift of 30% weekly hours.",
+        "recommendedPilotDays": 14
+      },
+      "permanentRule": "No web development project accepted under ₹10,000 advance+balance.",
+      "createdAt": "2026-10-04T21:03:13.279Z"
+    },
+    {
+      "id": "dec-1",
+      "title": "Focus Uplora on Commerce-Tech while Preserving Website Cash Engine",
+      "rationale": "Dropping website projects immediately would kill current ₹40k cashflow. We will fund StoreIK R&D purely from client website profits.",
+      "authorId": "damo",
+      "authorName": "Damo",
+      "expectedOutcome": "Reach ₹1,00,000/month in website services within 60 days, then channel 30% of engineering time to StoreIK.",
+      "status": "approved",
+      "reviewDate": "2026-11-05",
+      "riskAssessment": {
+        "revenueImpact": "Preserves 100% of current cashflow; eliminates insolvency risk.",
+        "customerRisk": "Existing website clients remain well-serviced.",
+        "teamCapacity": "Partner spends 70% time on client sites, 30% on StoreIK modules.",
+        "recommendedPilotDays": 14
+      },
+      "permanentRule": "Never discontinue a profitable service until new product generates at least 1.5x equivalent recurring margin.",
+      "createdAt": "2026-10-01T08:00:00.000Z"
+    }
+  ],
+  "opportunities": [
+    {
+      "id": "opp-1",
+      "headline": "Meta expands WhatsApp Flows and In-Chat UPI for Indian Merchants",
+      "sector": "WhatsApp Commerce",
+      "sourceDomain": "techcrunch.com",
+      "whyItMatters": "Indian SMBs can now take customer details directly inside WhatsApp without external websites. Uplora can package this as a high-margin setup service.",
+      "potentialService": "Turnkey WhatsApp Flow Appointment & Catalog Setup (₹4,999 setup + ₹999/mo).",
+      "potentialRevenueEst": 45000,
+      "status": "saved",
+      "createdAt": "2026-10-02T11:20:00.000Z"
+    },
+    {
+      "id": "opp-2",
+      "headline": "Instagram pushes Creator Marketplaces & Direct DM Selling Tools in Tier-2 India",
+      "sector": "Instagram Selling",
+      "sourceDomain": "economictimes.indiatimes.com",
+      "whyItMatters": "Coimbatore, Surat, and Jaipur regional sellers are moving aggressively to Instagram. They lack professional order management.",
+      "potentialService": "StoreIK Merchant Starter Kit: Bio Link + Live Inventory + WhatsApp CRM.",
+      "potentialRevenueEst": 80000,
+      "status": "saved",
+      "createdAt": "2026-10-03T15:45:00.000Z"
+    }
+  ],
+  "achievements": [
+    {
+      "id": "ach-1",
+      "code": "FIRST_RUPEE",
+      "title": "The First Rupee",
+      "description": "Bank first ₹1,000 from a commercial client.",
+      "icon": "🌱",
+      "xpReward": 100,
+      "unlocked": true,
+      "unlockedAt": "2025-12-15T12:00:00.000Z"
+    },
+    {
+      "id": "ach-2",
+      "code": "TEN_K_CLUB",
+      "title": "Ten-K Milestone",
+      "description": "Generate over ₹10,000 in a single month.",
+      "icon": "🥉",
+      "xpReward": 250,
+      "unlocked": true,
+      "unlockedAt": "2026-01-20T12:00:00.000Z"
+    },
+    {
+      "id": "ach-3",
+      "code": "STREAK_4",
+      "title": "Iron Executioner (4-Day Streak)",
+      "description": "Execute core company check-ins 4 days in a row.",
+      "icon": "🔥",
+      "xpReward": 150,
+      "unlocked": true,
+      "unlockedAt": "2026-10-04T08:00:00.000Z"
+    },
+    {
+      "id": "ach-4",
+      "code": "HALF_CENTURY",
+      "title": "Half-Century Run (₹50k Month)",
+      "description": "Collect ₹50,000 in customer cash in one month.",
+      "icon": "🥈",
+      "xpReward": 500,
+      "unlocked": false
+    },
+    {
+      "id": "ach-5",
+      "code": "LAKH_BOSS",
+      "title": "Six-Figure Operator (₹1L Month)",
+      "description": "Slay the ₹1,00,000 Monthly Boss Battle.",
+      "icon": "🥇",
+      "xpReward": 1000,
+      "unlocked": false
+    },
+    {
+      "id": "ach-6",
+      "code": "FIRST_STOREIK",
+      "title": "StoreIK Pioneer",
+      "description": "Onboard the very first merchant on StoreIK.",
+      "icon": "🚀",
+      "xpReward": 750,
+      "unlocked": false
+    },
+    {
+      "id": "ach-7",
+      "code": "CRORE_CLUB",
+      "title": "The ₹1 Crore Milestone",
+      "description": "Reach ₹10,000,000 in cumulative revenue.",
+      "icon": "💎",
+      "xpReward": 10000,
+      "unlocked": false
+    },
+    {
+      "id": "ach-8",
+      "code": "ONE_BILLION_CONQUEST",
+      "title": "₹1 Billion Empire S-Tier",
+      "description": "Attain the ultimate ₹1,000,000,000 Quest Conquest.",
+      "icon": "👑",
+      "xpReward": 100000,
+      "unlocked": false
+    }
+  ],
+  "logs": [
+    {
+      "timestamp": "2026-10-04T20:54:32.946Z",
+      "action": "INITIAL_BOOTSTRAP",
+      "details": "Database initialized with Uplora seed benchmark."
+    }
+  ],
+  "experiments": [
+    {
+      "id": "exp-1791147793274",
+      "title": "Test StoreIK WhatsApp DM Checkout for 3 Sarees Sellers",
+      "hypothesis": "Merchants with >1,000 followers will pay ₹999/mo for WhatsApp checkout",
+      "durationDays": 7,
+      "startDate": "2026-10-04",
+      "endDate": "2026-10-11",
+      "metricsTracked": "Merchant pitches, active signups, collected deposits",
+      "successCriteria": "At least 2 paying signups",
+      "outcome": "running",
+      "createdAt": "2026-10-04T21:03:13.274Z"
+    },
+    {
+      "id": "exp-1",
+      "ideaId": "idea-1",
+      "title": "7-Day WhatsApp Flow Form Pilot for Velan Silks",
+      "hypothesis": "Providing a 3-tap WhatsApp Flow catalog will increase order conversion by 25% compared to manual Instagram DM chat.",
+      "durationDays": 7,
+      "startDate": "2026-10-02",
+      "endDate": "2026-10-09",
+      "metricsTracked": "Catalog views, initiated chats, completed UPI payments.",
+      "successCriteria": "At least 5 completed customer orders through the pilot catalog.",
+      "outcome": "running",
+      "createdAt": "2026-10-02T10:00:00.000Z"
+    }
+  ],
+  "company_memory": [
+    {
+      "id": "mem-1",
+      "category": "vision",
+      "key": "structure",
+      "content": "Uplora is the parent Commerce-Tech engine. Akyzer is the proprietary D2C e-commerce brand. StoreIK is the core merchant platform product.",
+      "updatedAt": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "mem-2",
+      "category": "pricing",
+      "key": "website_tier",
+      "content": "Standard responsive website: ₹6,000–₹10,000. E-commerce / catalog storefront: ₹12,000–₹25,000. Minimum 50% upfront payment required before design starts.",
+      "updatedAt": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "mem-3",
+      "category": "lessons",
+      "key": "scope_creep",
+      "content": "Never accept multi-vendor marketplace scopes under ₹50,000; it creates timeline blowouts and strains Partner capacity.",
+      "updatedAt": "2026-10-01T08:00:00.000Z"
+    },
+    {
+      "id": "mem-4",
+      "category": "rules",
+      "key": "idea_quarantine",
+      "content": "Any new business or dropshipping concept must remain in 7-day quarantine with customer validation before any development commences.",
+      "updatedAt": "2026-10-01T08:00:00.000Z"
+    }
+  ],
+  "audit_logs": [
+    {
+      "id": "log-1791147804580-1kj9jf",
+      "timestamp": "2026-10-04T21:03:24.580Z",
+      "actor": "ai_coo",
+      "action": "PROPOSE_ACTION_GET_LEADS",
+      "details": "{\"toolArgs\":{\"status\":\"proposal\"}}",
+      "requiresApproval": true,
+      "approvalStatus": "pending"
+    },
+    {
+      "id": "log-1791147793289-hlbsbg",
+      "timestamp": "2026-10-04T21:03:13.289Z",
+      "actor": "damo",
+      "action": "MANUAL_APPROVE_ACTION",
+      "details": "{\"tool\":\"create_task\",\"params\":{\"title\":\"Human-Approved Quest: Follow up with Annapoorna Spices\",\"ownerId\":\"damo\",\"priority\":\"critical\",\"xpReward\":90,\"revenueRelation\":12500},\"resultId\":\"task-1791147793288\"}",
+      "requiresApproval": false
+    },
+    {
+      "id": "log-1791147793288-pf8tbn",
+      "timestamp": "2026-10-04T21:03:13.288Z",
+      "actor": "damo",
+      "action": "CREATE_TASK",
+      "details": "{\"taskId\":\"task-1791147793288\",\"title\":\"Human-Approved Quest: Follow up with Annapoorna Spices\",\"ownerId\":\"damo\"}",
+      "requiresApproval": false
+    },
+    {
+      "id": "log-1791147793283-s7wnbq",
+      "timestamp": "2026-10-04T21:03:13.283Z",
+      "actor": "damo",
+      "action": "UPDATE_DECISION_STATUS",
+      "details": "{\"decisionId\":\"dec-1791147793279\",\"status\":\"approved\",\"permanentRule\":\"No web development project accepted under ₹10,000 advance+balance.\"}",
+      "requiresApproval": false
+    },
+    {
+      "id": "log-1791147793279-jikox2",
+      "timestamp": "2026-10-04T21:03:13.279Z",
+      "actor": "damo",
+      "action": "CREATE_DECISION",
+      "details": "{\"decisionId\":\"dec-1791147793279\",\"title\":\"Standardize Minimum Website Deal Size at ₹10,000\"}",
+      "requiresApproval": false
+    },
+    {
+      "id": "log-1791147793274-vidfif",
+      "timestamp": "2026-10-04T21:03:13.274Z",
+      "actor": "damo",
+      "action": "CREATE_EXPERIMENT",
+      "details": "{\"expId\":\"exp-1791147793274\",\"title\":\"Test StoreIK WhatsApp DM Checkout for 3 Sarees Sellers\"}",
+      "requiresApproval": false
+    },
+    {
+      "id": "log-1791147793269-5at8bh",
+      "timestamp": "2026-10-04T21:03:13.269Z",
+      "actor": "damo",
+      "action": "DAILY_CHECKIN",
+      "details": "{\"date\":\"2026-10-04\",\"biggestWin\":\"₹8,000 advance banked from Vasantham Silks\"}",
+      "requiresApproval": false
+    },
+    {
+      "id": "log-1791147793257-piobjwj",
+      "timestamp": "2026-10-04T21:03:13.257Z",
+      "actor": "damo",
+      "action": "ADD_REVENUE",
+      "details": "{\"revId\":\"rev-1791147793257\",\"amount\":8000,\"clientName\":\"Vasantham Silks Coimbatore\"}",
+      "requiresApproval": false
+    },
+    {
+      "id": "log-1791147793251-x1lutj",
+      "timestamp": "2026-10-04T21:03:13.251Z",
+      "actor": "damo",
+      "action": "UPDATE_LEAD_STAGE",
+      "details": "{\"leadId\":\"lead-1791147793239\",\"oldStatus\":\"proposal\",\"newStatus\":\"won\"}",
+      "requiresApproval": false
+    },
+    {
+      "id": "log-1791147793245-afw6nn",
+      "timestamp": "2026-10-04T21:03:13.245Z",
+      "actor": "damo",
+      "action": "UPDATE_LEAD_STAGE",
+      "details": "{\"leadId\":\"lead-1791147793239\",\"oldStatus\":\"prospect\",\"newStatus\":\"proposal\"}",
+      "requiresApproval": false
+    },
+    {
+      "id": "log-1791147793239-9d9md",
+      "timestamp": "2026-10-04T21:03:13.239Z",
+      "actor": "damo",
+      "action": "CREATE_LEAD",
+      "details": "{\"leadId\":\"lead-1791147793239\",\"businessName\":\"Vasantham Silks Coimbatore\"}",
+      "requiresApproval": false
+    },
+    {
+      "id": "log-1791147793233-mnl36",
+      "timestamp": "2026-10-04T21:03:13.233Z",
+      "actor": "damo",
+      "action": "ADAPT_TASK",
+      "details": "{\"fromTaskId\":\"task-1791147793222\",\"newTaskId\":\"task-adapted-1791147793233\",\"newTitle\":\"Adapted Quota: 8 sales calls in 2-hour morning block\"}",
+      "requiresApproval": false
+    },
+    {
+      "id": "log-1791147793227-7z9vr9",
+      "timestamp": "2026-10-04T21:03:13.227Z",
+      "actor": "damo",
+      "action": "MISS_TASK",
+      "details": "{\"taskId\":\"task-1791147793222\",\"reason\":\"Higher priority came\",\"notes\":\"Client delivery fire occupied afternoon focus\",\"needsAdaptation\":false}",
+      "requiresApproval": false
+    },
+    {
+      "id": "log-1791147793222-6zgl1le",
+      "timestamp": "2026-10-04T21:03:13.222Z",
+      "actor": "damo",
+      "action": "CREATE_TASK",
+      "details": "{\"taskId\":\"task-1791147793222\",\"title\":\"Quota: 15 sales calls\",\"ownerId\":\"damo\"}",
+      "requiresApproval": false
+    },
+    {
+      "id": "log-1791147793216-idozv9",
+      "timestamp": "2026-10-04T21:03:13.216Z",
+      "actor": "damo",
+      "action": "COMPLETE_TASK",
+      "details": "{\"taskId\":\"task-1791147793208\",\"xpReward\":100,\"ownerId\":\"damo\"}",
+      "requiresApproval": false
+    },
+    {
+      "id": "log-1791147793208-32njqq",
+      "timestamp": "2026-10-04T21:03:13.208Z",
+      "actor": "damo",
+      "action": "CREATE_TASK",
+      "details": "{\"taskId\":\"task-1791147793208\",\"title\":\"Smoke Test: Pitch StoreIK to 5 Coimbatore Boutiques\",\"ownerId\":\"damo\"}",
+      "requiresApproval": false
+    },
+    {
+      "id": "log-1",
+      "timestamp": "2026-10-04T21:03:09.864Z",
+      "actor": "damo",
+      "action": "INITIAL_BOOTSTRAP",
+      "details": "Database initialized with Uplora seed benchmark v2."
+    }
+  ],
+  "schemaVersion": 2
+}

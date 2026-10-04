@@ -9,13 +9,16 @@ import {
   CheckCircle2, 
   ExternalLink,
   ShieldCheck,
-  RefreshCw
+  RefreshCw,
+  FlaskConical,
+  ArrowRight
 } from 'lucide-react';
 
 interface MarketRadarViewProps {
   opportunities: MarketOpportunity[];
   onTriggerScan: () => Promise<void>;
   onConvertToIdea: (opp: MarketOpportunity) => void;
+  onConvertToExperiment?: (opp: MarketOpportunity) => void;
   onDismissOpportunity: (id: string) => void;
 }
 
@@ -23,6 +26,7 @@ export const MarketRadarView: React.FC<MarketRadarViewProps> = ({
   opportunities,
   onTriggerScan,
   onConvertToIdea,
+  onConvertToExperiment,
   onDismissOpportunity,
 }) => {
   const [isScanning, setIsScanning] = useState(false);
@@ -72,9 +76,9 @@ export const MarketRadarView: React.FC<MarketRadarViewProps> = ({
           <ShieldCheck className="w-4 h-4" />
         </span>
         <div className="space-y-1">
-          <div className="font-bold text-white">Uplora Strict Relevance Filter</div>
+          <div className="font-bold text-white">Uplora Strict Relevance Filter &amp; Action Funnel</div>
           <p className="text-slate-400 leading-relaxed">
-            The Market Radar forbids dumping irrelevant tech news. Every event is filtered through one ruthless question: <em>"Does this create cashflow or software opportunities for Uplora's local merchants or StoreIK?"</em>
+            Every external development must answer: <em>"How does this help Uplora close website clients or scale StoreIK?"</em> Convert discoveries directly into a 7-day validation experiment or quarantine idea.
           </p>
         </div>
       </div>
@@ -106,7 +110,7 @@ export const MarketRadarView: React.FC<MarketRadarViewProps> = ({
       <div className="space-y-4">
         {filtered.length === 0 ? (
           <div className="text-center py-12 border border-dashed border-slate-800 rounded-xl text-slate-500 text-xs">
-            No opportunities recorded in this sector. Tap "Scan Market Radar" to execute a live scan.
+            No opportunities recorded in this sector. Tap "Scan Market Radar" to execute a live grounded scan.
           </div>
         ) : (
           filtered.map((opp) => (
@@ -144,13 +148,13 @@ export const MarketRadarView: React.FC<MarketRadarViewProps> = ({
                   <p className="text-slate-300 leading-relaxed">{opp.whyItMatters}</p>
                 </div>
                 <div>
-                  <span className="text-amber-400 font-semibold block mb-0.5">Potential Service Offering:</span>
+                  <span className="text-amber-400 font-semibold block mb-0.5">Potential Service Package:</span>
                   <p className="text-slate-300 leading-relaxed">{opp.potentialService}</p>
                 </div>
               </div>
 
               {/* Actions */}
-              <div className="pt-2 border-t border-slate-800/80 flex justify-end gap-2 text-xs">
+              <div className="pt-2 border-t border-slate-800/80 flex flex-wrap items-center justify-end gap-2 text-xs">
                 <button
                   onClick={() => onDismissOpportunity(opp.id)}
                   className="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-slate-200 transition"
@@ -159,11 +163,20 @@ export const MarketRadarView: React.FC<MarketRadarViewProps> = ({
                 </button>
                 <button
                   onClick={() => onConvertToIdea(opp)}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-amber-500/20 border border-amber-500/40 text-amber-300 hover:bg-amber-500/30 font-bold transition"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 text-amber-300 hover:bg-slate-700 transition"
                 >
                   <Lightbulb className="w-3.5 h-3.5" />
-                  <span>Convert to Idea (7-Day Quarantine)</span>
+                  <span>Quarantine as Idea</span>
                 </button>
+                {onConvertToExperiment && (
+                  <button
+                    onClick={() => onConvertToExperiment(opp)}
+                    className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-cyan-600/30 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-600/40 font-bold transition"
+                  >
+                    <FlaskConical className="w-3.5 h-3.5" />
+                    <span>Launch 7-Day Pilot</span>
+                  </button>
+                )}
               </div>
             </div>
           ))
