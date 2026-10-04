@@ -46,6 +46,7 @@ I will not flatter you. Ask me what must be executed today, challenge me with st
   const [isLoading, setIsLoading] = useState(false);
   const [showLiveContext, setShowLiveContext] = useState(false);
   const [executingActionId, setExecutingActionId] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -103,6 +104,7 @@ I will not flatter you. Ask me what must be executed today, challenge me with st
 
   const handleExecuteAction = async (action: ProposedAction) => {
     setExecutingActionId(action.id);
+    setActionError(null);
     try {
       const res = await fetch('/api/actions/execute', {
         method: 'POST',
@@ -125,10 +127,10 @@ I will not flatter you. Ask me what must be executed today, challenge me with st
         );
         if (onRefreshData) onRefreshData();
       } else {
-        alert(`Action failed: ${data.error}`);
+        setActionError(`Action failed: ${data.error}`);
       }
     } catch (err: any) {
-      alert(`Failed to execute action: ${err.message}`);
+      setActionError(`Failed to execute action: ${err.message}`);
     } finally {
       setExecutingActionId(null);
     }
@@ -327,6 +329,18 @@ I will not flatter you. Ask me what must be executed today, challenge me with st
         )}
         <div ref={messagesEndRef} />
       </div>
+
+      {actionError && (
+        <div className="p-3 bg-red-950/40 border border-red-500/40 rounded-xl flex items-center justify-between text-xs text-red-300">
+          <span>{actionError}</span>
+          <button
+            onClick={() => setActionError(null)}
+            className="text-slate-400 hover:text-white text-xs px-2 py-0.5 rounded bg-slate-800"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {/* Tactical Quick Questions Bar */}
       <div className="flex gap-2 overflow-x-auto pb-1 shrink-0">

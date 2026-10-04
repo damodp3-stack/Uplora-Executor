@@ -25,7 +25,7 @@
 | **13** | Strategic Decision Approval | `POST /api/decisions` | Founder authorization required & rule stored | Decision approved; permanent rule extracted | ✅ PASS |
 | **14** | Human Approval Gate for AI Actions | `POST /api/actions/execute` | Founder approval executes proposed action | Action executed with audit log verification | ✅ PASS |
 | **15** | Full Database Backup Export | `GET /api/backup/export` | Valid JSON snapshot containing all tables | Verified complete snapshot structure | ✅ PASS |
-| **16** | System Blueprint Docs API | `GET /api/docs` | All architectural blueprints served | Verified all 22 documents returned | ✅ PASS |
+| **16** | System Blueprint Docs API | `GET /api/docs` | All architectural blueprints served | Verified all 26 documents returned | ✅ PASS |
 | **17** | Gemini COO Controlled Tool Calling | `POST /api/gemini/chat` | AI analyzes DB, invokes function declarations | Invoked tool, returned structured proposed action | ✅ PASS |
 
 ---

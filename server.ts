@@ -31,7 +31,12 @@ const cooFunctionDeclarations: FunctionDeclaration[] = [
     description: 'Retrieve live Uplora financial metrics, monthly target progress, active pipeline, and health scores.',
     parameters: {
       type: Type.OBJECT,
-      properties: {},
+      properties: {
+        includeHistory: {
+          type: Type.BOOLEAN,
+          description: 'Whether to include historical financial comparisons',
+        },
+      },
     },
   },
   {
@@ -552,6 +557,10 @@ app.post('/api/actions/execute', (req: Request, res: Response) => {
           recommendedPilotDays: params.recommendedPilotDays || 14,
         },
       }, 'damo');
+    } else if (tool === 'complete_task') {
+      result = db.completeTask(params.taskId, params.resultNote, 'damo');
+    } else if (tool === 'update_lead_stage') {
+      result = db.updateLeadStage(params.leadId, params.status, params.notes, 'damo');
     } else {
       return res.status(400).json({ error: `Unknown tool execution: ${tool}` });
     }
@@ -659,24 +668,36 @@ COO BEHAVIORAL PROTOCOL:
         if (!name) continue;
         const toolArgs = args as any;
 
-        // Categorize into immediate execute vs requires approval
-        const isSensitive = ['create_strategic_decision'].includes(name) || (name === 'create_task' && (toolArgs.priority === 'critical' || (toolArgs.revenueRelation || 0) >= 50000));
+        const isActionTool = [
+          'create_task',
+          'adapt_task_difficulty',
+          'create_lead',
+          'create_idea',
+          'create_experiment',
+          'create_strategic_decision',
+          'complete_task',
+          'update_lead_stage',
+        ].includes(name);
 
-        const proposed: ProposedAction = {
-          id: `act-${Date.now()}-${Math.random().toString(36).substring(7)}`,
-          tool: name,
-          params: toolArgs,
-          explanation: `COO proposes executing [${name}]: ${toolArgs.title || toolArgs.businessName || 'operational action'}`,
-          risk: isSensitive ? 'Strategic shift: requires founder review before database mutation.' : 'Low risk execution.',
-          requiresApproval: true, // Let Damo review all proposed actions with 1-click execution
-          status: 'pending',
-        };
+        if (isActionTool) {
+          const isSensitive = ['create_strategic_decision'].includes(name) || (name === 'create_task' && (toolArgs.priority === 'critical' || (toolArgs.revenueRelation || 0) >= 50000));
 
-        proposedActions.push(proposed);
-        db.logAudit('ai_coo', `PROPOSE_ACTION_${name.toUpperCase()}`, { toolArgs }, true);
+          const proposed: ProposedAction = {
+            id: `act-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+            tool: name,
+            params: toolArgs,
+            explanation: `COO proposes executing [${name}]: ${toolArgs.title || toolArgs.businessName || 'operational action'}`,
+            risk: isSensitive ? 'Strategic shift: requires founder review before database mutation.' : 'Low risk execution.',
+            requiresApproval: true, // Let Damo review all proposed actions with 1-click execution
+            status: 'pending',
+          };
+
+          proposedActions.push(proposed);
+          db.logAudit('ai_coo', `PROPOSE_ACTION_${name.toUpperCase()}`, { toolArgs }, true);
+        }
       }
 
-      if (!replyText) {
+      if (!replyText && proposedActions.length > 0) {
         replyText = `I have analyzed our operational database and drafted ${proposedActions.length} prioritized action proposal(s) below. Review and authorize to execute.`;
       }
     }

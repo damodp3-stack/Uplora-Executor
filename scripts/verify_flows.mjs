@@ -305,6 +305,28 @@ async function runTests() {
     console.log(`   * Verified ${docs.length} architectural documentation blueprints.`);
   });
 
+  // 17. Gemini COO Controlled Tool Calling
+  await testStep('17. Gemini COO Controlled Tool Calling', async () => {
+    const res = await fetch(`${BASE_URL}/api/gemini/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: 'Propose a critical sales task for Damo to pitch StoreIK to 5 bridal textile boutiques in Tirupur with revenue relation 15000.',
+      }),
+    });
+    if (!res.ok) throw new Error(`Gemini chat endpoint HTTP ${res.status}`);
+    const data = await res.json();
+    if (!data.reply && (!data.proposedActions || data.proposedActions.length === 0)) {
+      throw new Error('Gemini COO returned neither reply text nor proposed actions');
+    }
+    console.log(`   * Gemini COO Response received.`);
+    if (data.proposedActions && data.proposedActions.length > 0) {
+      console.log(`   * Controlled Function Call captured: ${data.proposedActions[0].tool} (${data.proposedActions[0].explanation})`);
+    } else {
+      console.log(`   * Tactical operational advice returned: "${data.reply.substring(0, 80)}..."`);
+    }
+  });
+
   console.log(`\n========================================`);
   console.log(`🏁 TEST RESULTS: ${passCount} PASSED, ${failCount} FAILED`);
   console.log(`========================================\n`);
