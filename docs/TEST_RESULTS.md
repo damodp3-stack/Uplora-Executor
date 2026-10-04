@@ -1,32 +1,35 @@
 # Uplora 1B Quest — Test & Verification Results
 
 **Execution Date**: October 2026  
-**Test Suite**: `scripts/verify_flows.mjs` & Gemini COO Tool Calling Integration  
+**Test Suite**: `scripts/verify_flows.mjs`  
 **Environment**: Node.js v22 + Express + React 19 + TypeScript + `@google/genai` (port 3000)
 
 ---
 
-## 1. Automated Flow Test Matrix
+## 1. Automated Architecture & Security Verification Matrix
 
 | # | Test Case Description | Target Endpoint | Expected Result | Actual Result | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **01** | Dynamic Company Status & Runway | `GET /api/company/status` | Real health scores & gap computed from DB | Computed Health Composite: 28/100, Bottleneck: "Cash Generation Shortfall" | ✅ PASS |
-| **02** | Fetch Characters & Quotas | `GET /api/users` | 3 members (Damo, Partner, Assistant) | 3 team members returned with avatars and levels | ✅ PASS |
-| **03** | Create Prioritized Tactical Task | `POST /api/tasks` | Task saved with commercial linkage | Task created with `revenueRelation: 15000` | ✅ PASS |
-| **04** | Complete Task & Award XP | `PATCH /api/tasks/:id/complete` | Status `completed`, owner XP incremented | +100 XP awarded to Damo | ✅ PASS |
-| **05** | Missed Task Debrief Logging | `PATCH /api/tasks/:id/missed` | Root cause recorded, adaptation checked | Reason "Higher priority came" logged | ✅ PASS |
-| **06** | Task Difficulty Auto-Adaptation | `POST /api/tasks/adapt` | Stepped-down challenge linked to parent | Adapted challenge "Adapted Quota: 8 calls" linked | ✅ PASS |
-| **07** | Create CRM Prospect | `POST /api/leads` | Lead created with WhatsApp launcher | "Vasantham Silks Coimbatore" logged | ✅ PASS |
-| **08** | Lead Progression to Proposal & Won | `PATCH /api/leads/:id/stage` | Stage progresses, won deal bonus awarded | Advanced to Proposal then Won (+250 XP bonus) | ✅ PASS |
-| **09** | Banked Revenue & Dynamic ETA | `POST /api/revenue` | Payment logged, XP minted, ETA updated | Banked ₹8,000, ETA dynamically recalculated | ✅ PASS |
-| **10** | CRM Analytics Pipeline Engine | `GET /api/crm/analytics` | Win rate %, active pipeline, hot leads count | Win Rate: 40%, Pipeline: ₹36,500, Hot Leads: 3 | ✅ PASS |
-| **11** | 8-Question Daily Check-in | `POST /api/checkins` | Reflection stored, streak built, +25 XP | Check-in logged, streak multiplier verified | ✅ PASS |
-| **12** | 7-Day Validation Experiment | `POST /api/experiments` | Falsifiable commercial pilot running | 7-Day Pilot for StoreIK WhatsApp DM checkout created | ✅ PASS |
-| **13** | Strategic Decision Approval | `POST /api/decisions` | Founder authorization required & rule stored | Decision approved; permanent rule extracted | ✅ PASS |
-| **14** | Human Approval Gate for AI Actions | `POST /api/actions/execute` | Founder approval executes proposed action | Action executed with audit log verification | ✅ PASS |
-| **15** | Full Database Backup Export | `GET /api/backup/export` | Valid JSON snapshot containing all tables | Verified complete snapshot structure | ✅ PASS |
-| **16** | System Blueprint Docs API | `GET /api/docs` | All architectural blueprints served | Verified all 26 documents returned | ✅ PASS |
-| **17** | Gemini COO Controlled Tool Calling | `POST /api/gemini/chat` | AI analyzes DB, invokes function declarations | Invoked tool, returned structured proposed action | ✅ PASS |
+| **01** | Gemini read-only tool execution loop | `POST /api/gemini/chat` | Executes read tool (`get_company_status`), returns answer, zero mutation proposals | Analytical reply returned, zero mutating proposals created | ✅ PASS |
+| **02** | Gemini mutation creates pending action | `POST /api/gemini/chat` | Converted to pending action, DB unmutated, approval notice in reply | Action created (`status: pending`, `proposedBy: ai_coo`), task not added to DB | ✅ PASS |
+| **03** | Pending action cannot execute before approval | `POST /api/actions/:id/execute` | Blocked with HTTP 403 Forbidden | Blocked with HTTP 403 ("Execution Blocked: Action is pending") | ✅ PASS |
+| **04** | Damo approval changes state correctly | `POST /api/actions/:id/approve` | Non-founder rejected (403); Damo approval sets `status: approved` | Partner rejected (403); Damo approved (`status: approved`, `approvedBy: damo`) | ✅ PASS |
+| **05** | Approved action executes exactly once | `POST /api/actions/:id/execute` | Executes DB mutation, sets `status: executed`, records `resultId` | Executed with HTTP 200, task created in DB, `executedAt` recorded | ✅ PASS |
+| **06** | Replaying same executed action fails | `POST /api/actions/:id/execute` | Second execution attempt rejected with HTTP 403 Forbidden | Replay blocked with HTTP 403 ("Replay Attack Prevented") | ✅ PASS |
+| **07** | Rejecting action prevents execution | `POST /api/actions/:id/reject` | Marked `rejected`, subsequent execution attempt blocked | Marked `rejected`; execution attempt blocked with HTTP 403 | ✅ PASS |
+| **08** | Unknown AI tool & unapproved direct execution fail | `POST /api/actions/propose` & `/execute` | Blocked with HTTP 400 Bad Request | Tool blocked with 400; unapproved direct execution blocked with 400 | ✅ PASS |
+| **09** | Modified params after approval rejected | `POST /api/actions/:id/execute` | Parameter tampering rejected with HTTP 403 Forbidden | Blocked with HTTP 403 ("Parameter Tamper Detected") | ✅ PASS |
+| **10** | Strategic decision requires founder approval | `PATCH /api/decisions/:id/status` | Unauthorized/no-actor rejected (403); lifecycle enforced; Damo approves | Missing actor & partner rejected (403); invalid transition rejected (400); Damo approved (200) | ✅ PASS |
+| **11** | Audit logs contain governance events | `GET /api/audit-logs` | Contains proposal, approval, execution, and decision events | Verified all 4 governance event types present in audit log | ✅ PASS |
+| **12** | Company status & dynamic calculations | `GET /api/company/status` | Dynamic health scores & gap computed from DB | Health composite & primary bottleneck dynamically calculated | ✅ PASS |
+| **13** | Team characters / profiles | `GET /api/users` | 3 members (Damo, Partner, Assistant) | 3 character profiles returned with avatars and levels | ✅ PASS |
+| **14** | Tactical task creation & XP minting | `POST /api/tasks` & `PATCH /complete` | Task created, completed, and XP minted to user profile | Task created, completed, +90 XP awarded to Partner | ✅ PASS |
+| **15** | Quota debrief & auto-adaptation | `PATCH /missed` & `POST /adapt` | Debrief recorded, stepped-down challenge linked | "Adapted Quota: 8 sales calls" linked to missed parent task | ✅ PASS |
+| **16** | CRM lead creation & advancement to Won | `POST /api/leads` & `PATCH /stage` | Lead created and advanced through stages to Won | "Vasantham Silks Coimbatore" created and advanced to Won | ✅ PASS |
+| **17** | Revenue banking & dynamic ETA | `POST /api/revenue` | Payment logged, verified live revenue updated, ETA recalculated | Banked ₹8,000, dynamic compound growth ETA updated | ✅ PASS |
+| **18** | Daily check-in & streak discipline | `POST /api/checkins` | 8-question check-in logged, streak multiplier incremented | Check-in stored, streak incremented | ✅ PASS |
+| **19** | 7-day validation experiment | `POST /api/experiments` | Falsifiable commercial pilot running | StoreIK WhatsApp DM checkout experiment launched | ✅ PASS |
+| **20** | Full JSON backup export & docs reader API | `GET /api/backup/export` & `/api/docs` | Valid JSON snapshot & all architectural docs served | Verified complete backup snapshot & 26 architectural blueprints | ✅ PASS |
 
 ---
 
@@ -42,3 +45,7 @@
   ✓ built in 480ms
   Exit Code: 0 (Zero errors)
   ```
+* **Automated Test Suite Summary**:
+  * Total Verification Tests: 20
+  * Passed: 20
+  * Failed: 0

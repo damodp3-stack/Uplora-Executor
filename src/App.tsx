@@ -407,16 +407,18 @@ export default function App() {
 
   const handleUpdateDecisionStatus = async (id: string, status: any, outcomeNote?: string) => {
     try {
+      const actor = currentUser?.id || 'damo';
       const res = await fetch(`/api/decisions/${id}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status, outcomeNote }),
+        body: JSON.stringify({ status, outcomeNote, actor }),
       });
+      const data = await res.json();
       if (res.ok) {
         showToast(`Decision authorization updated to ${status}.`);
         loadAllData();
       } else {
-        showToast('Failed to update decision authorization.', true);
+        showToast(data.error || 'Failed to update decision authorization.', true);
       }
     } catch (e: any) {
       showToast(`Error: ${e.message}`, true);

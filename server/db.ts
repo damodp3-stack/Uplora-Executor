@@ -15,7 +15,49 @@ import {
   CompanyStatus,
   Achievement,
   CRMAnalytics,
+  PendingAction,
+  ActionStatus,
+  DecisionStatus,
 } from '../src/types/index.js';
+
+export const VALIDATION_RULES = {
+  OWNER_IDS: ['damo', 'partner', 'assistant'] as const,
+  TASK_LAYERS: ['daily', 'weekly', 'monthly', 'side_quest'] as const,
+  TASK_CATEGORIES: ['sales', 'delivery', 'lead_gen', 'strategy', 'product'] as const,
+  TASK_PRIORITIES: ['critical', 'high', 'medium', 'low'] as const,
+  TASK_DIFFICULTIES: ['easy', 'medium', 'hard', 'boss'] as const,
+  LEAD_STAGES: [
+    'prospect',
+    'contacted',
+    'connected',
+    'interested',
+    'qualified',
+    'proposal',
+    'negotiation',
+    'won',
+    'lost',
+    'followup',
+  ] as const,
+  SERVICE_TYPES: ['website', 'whatsapp_automation', 'storeik', 'ecommerce', 'maintenance', 'other'] as const,
+  DECISION_STATUSES: ['proposed', 'in_pilot', 'approved', 'rejected', 'executed', 'reviewed'] as const,
+  READ_TOOLS: [
+    'get_company_status',
+    'get_revenue_analytics',
+    'get_tasks',
+    'get_leads',
+    'get_company_memory',
+  ] as const,
+  MUTATING_TOOLS: [
+    'create_task',
+    'adapt_task_difficulty',
+    'create_lead',
+    'create_idea',
+    'create_experiment',
+    'create_strategic_decision',
+    'complete_task',
+    'update_lead_stage',
+  ] as const,
+};
 
 const DATA_DIR = path.resolve(process.cwd(), 'data');
 const DB_FILE = path.join(DATA_DIR, 'uplora_db.json');
@@ -43,6 +85,7 @@ export interface DatabaseSchema {
   company_memory: CompanyMemoryItem[];
   achievements: Achievement[];
   audit_logs: AuditLog[];
+  pending_actions: PendingAction[];
 }
 
 const INITIAL_BENCHMARK: DatabaseSchema = {
@@ -548,6 +591,7 @@ const INITIAL_BENCHMARK: DatabaseSchema = {
       details: 'Database initialized with Uplora seed benchmark v2.',
     },
   ],
+  pending_actions: [],
 };
 
 class LocalDatabase {
@@ -571,6 +615,7 @@ class LocalDatabase {
           if (!parsed.experiments) parsed.experiments = INITIAL_BENCHMARK.experiments;
           if (!parsed.company_memory) parsed.company_memory = INITIAL_BENCHMARK.company_memory;
           if (!parsed.audit_logs) parsed.audit_logs = INITIAL_BENCHMARK.audit_logs;
+          if (!parsed.pending_actions) parsed.pending_actions = [];
           if (!parsed.schemaVersion) parsed.schemaVersion = 2;
           this.db = parsed;
           // Backup on startup
@@ -610,6 +655,9 @@ class LocalDatabase {
 
   public getCompanyStatus(): CompanyStatus {
     const cumulativeRev = this.db.revenue.reduce((acc, r) => acc + (Number(r.amount) || 0), 0);
+    const benchmarkRev = this.db.revenue.filter((r) => r.isBenchmark).reduce((acc, r) => acc + (Number(r.amount) || 0), 0);
+    const verifiedLiveRev = this.db.revenue.filter((r) => !r.isBenchmark).reduce((acc, r) => acc + (Number(r.amount) || 0), 0);
+    const isBenchmarkBaseline = verifiedLiveRev === 0;
     
     // Calculate current month's revenue (current year & month)
     const now = new Date();
@@ -725,6 +773,9 @@ class LocalDatabase {
       pipelineValue: pipelineVal,
       hotLeadsCount: hotLeads.length,
       overdueFollowupsCount: overdueFollowups.length,
+      benchmarkRevenue: benchmarkRev,
+      verifiedLiveRevenue: verifiedLiveRev,
+      isBenchmarkBaseline,
       healthScores: {
         revenue: revScore,
         sales: salesScore,
@@ -771,20 +822,48 @@ class LocalDatabase {
   }
 
   public createTask(task: Partial<Task>, actor: AuditLog['actor'] = 'damo'): Task {
+    if (!task.title || typeof task.title !== 'string' || !task.title.trim()) {
+      throw new Error('Validation Error: Task title is required and cannot be empty.');
+    }
+    const ownerId = task.ownerId || 'damo';
+    if (!VALIDATION_RULES.OWNER_IDS.includes(ownerId as any)) {
+      throw new Error(`Validation Error: Invalid ownerId '${ownerId}'. Must be one of: ${VALIDATION_RULES.OWNER_IDS.join(', ')}`);
+    }
+    const layer = task.layer || 'daily';
+    if (!VALIDATION_RULES.TASK_LAYERS.includes(layer as any)) {
+      throw new Error(`Validation Error: Invalid task layer '${layer}'. Must be one of: ${VALIDATION_RULES.TASK_LAYERS.join(', ')}`);
+    }
+    const category = task.category || 'sales';
+    if (!VALIDATION_RULES.TASK_CATEGORIES.includes(category as any)) {
+      throw new Error(`Validation Error: Invalid task category '${category}'. Must be one of: ${VALIDATION_RULES.TASK_CATEGORIES.join(', ')}`);
+    }
+    const priority = task.priority || 'medium';
+    if (!VALIDATION_RULES.TASK_PRIORITIES.includes(priority as any)) {
+      throw new Error(`Validation Error: Invalid task priority '${priority}'. Must be one of: ${VALIDATION_RULES.TASK_PRIORITIES.join(', ')}`);
+    }
+    const xpReward = Number(task.xpReward !== undefined ? task.xpReward : 50);
+    if (isNaN(xpReward) || xpReward < 0 || xpReward > 50000) {
+      throw new Error('Validation Error: xpReward must be a positive number up to 50,000.');
+    }
+    const revenueRelation = Number(task.revenueRelation || 0);
+    if (isNaN(revenueRelation) || revenueRelation < 0) {
+      throw new Error('Validation Error: revenueRelation must be a non-negative number.');
+    }
+
     const newTask: Task = {
       id: `task-${Date.now()}`,
-      title: task.title || 'Untitled Mission',
+      title: task.title.trim(),
       description: task.description || '',
-      ownerId: task.ownerId || 'damo',
-      layer: task.layer || 'daily',
-      category: task.category || 'sales',
-      priority: task.priority || 'medium',
+      ownerId,
+      layer,
+      category,
+      priority,
       difficulty: task.difficulty || 'medium',
-      xpReward: Number(task.xpReward) || 50,
+      xpReward,
       status: 'pending',
       dueDate: task.dueDate || new Date().toISOString().split('T')[0],
       relatedRevenueTarget: task.relatedRevenueTarget,
-      revenueRelation: task.revenueRelation || 0,
+      revenueRelation,
       strategicRelation: task.strategicRelation || '',
       estimatedEffortMinutes: Number(task.estimatedEffortMinutes) || 60,
     };
@@ -891,9 +970,25 @@ class LocalDatabase {
   }
 
   public createLead(lead: Partial<Lead>, actor: AuditLog['actor'] = 'damo'): Lead {
+    if (!lead.businessName || typeof lead.businessName !== 'string' || !lead.businessName.trim()) {
+      throw new Error('Validation Error: Business name is required.');
+    }
+    const assignedTo = lead.assignedTo || 'damo';
+    if (!VALIDATION_RULES.OWNER_IDS.includes(assignedTo as any)) {
+      throw new Error(`Validation Error: Invalid assignedTo '${assignedTo}'. Must be one of: ${VALIDATION_RULES.OWNER_IDS.join(', ')}`);
+    }
+    const status = lead.status || 'prospect';
+    if (!VALIDATION_RULES.LEAD_STAGES.includes(status as any)) {
+      throw new Error(`Validation Error: Invalid lead stage '${status}'. Must be one of: ${VALIDATION_RULES.LEAD_STAGES.join(', ')}`);
+    }
+    const estimatedValue = Number(lead.estimatedValue !== undefined ? lead.estimatedValue : 8000);
+    if (isNaN(estimatedValue) || estimatedValue < 0 || estimatedValue > 1000000000) {
+      throw new Error('Validation Error: estimatedValue must be a non-negative number up to ₹100 Crore.');
+    }
+
     const newLead: Lead = {
       id: `lead-${Date.now()}`,
-      businessName: lead.businessName || 'Unnamed Lead',
+      businessName: lead.businessName.trim(),
       contactName: lead.contactName || '',
       phone: lead.phone || '',
       whatsapp: lead.whatsapp || (lead.phone ? lead.phone.replace(/[^0-9]/g, '') : ''),
@@ -903,10 +998,10 @@ class LocalDatabase {
       category: lead.category || 'Retail',
       problemIdentified: lead.problemIdentified || 'Lacks professional mobile storefront.',
       proposedSolution: lead.proposedSolution || 'Uplora Website + WhatsApp Catalog.',
-      estimatedValue: Number(lead.estimatedValue) || 8000,
+      estimatedValue,
       leadSource: lead.leadSource || 'Instagram',
-      assignedTo: lead.assignedTo || 'damo',
-      status: lead.status || 'prospect',
+      assignedTo,
+      status,
       isHotLead: lead.isHotLead || false,
       dealCycleDays: 0,
       notes: lead.notes || '',
@@ -1002,12 +1097,23 @@ class LocalDatabase {
   }
 
   public addRevenue(entry: Partial<RevenueEntry>, actor: AuditLog['actor'] = 'damo'): { entry: RevenueEntry; xpAwarded: number } {
-    const amount = Number(entry.amount) || 0;
+    const amount = Number(entry.amount);
+    if (isNaN(amount) || amount <= 0 || amount > 1000000000) {
+      throw new Error('Validation Error: Revenue amount must be a positive number up to ₹100 Crore.');
+    }
+    if (!entry.clientName || typeof entry.clientName !== 'string' || !entry.clientName.trim()) {
+      throw new Error('Validation Error: Client name is required.');
+    }
+    const serviceType = entry.serviceType || 'website';
+    if (!VALIDATION_RULES.SERVICE_TYPES.includes(serviceType as any)) {
+      throw new Error(`Validation Error: Invalid serviceType '${serviceType}'. Must be one of: ${VALIDATION_RULES.SERVICE_TYPES.join(', ')}`);
+    }
+
     const xp = Math.max(10, Math.floor(amount / 100)); // 1 XP per ₹100
     const newEntry: RevenueEntry = {
       id: `rev-${Date.now()}`,
-      clientName: entry.clientName || 'Private Client',
-      serviceType: entry.serviceType || 'website',
+      clientName: entry.clientName.trim(),
+      serviceType,
       amount,
       paymentDate: entry.paymentDate || new Date().toISOString().split('T')[0],
       notes: entry.notes || '',
@@ -1067,10 +1173,17 @@ class LocalDatabase {
   }
 
   public createIdea(idea: Partial<Idea>, actor: AuditLog['actor'] = 'damo'): Idea {
+    if (!idea.title || typeof idea.title !== 'string' || !idea.title.trim()) {
+      throw new Error('Validation Error: Idea title is required.');
+    }
+    if (!idea.problem || typeof idea.problem !== 'string' || !idea.problem.trim()) {
+      throw new Error('Validation Error: Problem definition is required.');
+    }
+
     const newIdea: Idea = {
       id: `idea-${Date.now()}`,
-      title: idea.title || 'Untitled Idea',
-      problem: idea.problem || '',
+      title: idea.title.trim(),
+      problem: idea.problem.trim(),
       targetCustomer: idea.targetCustomer || '',
       proposedSolution: idea.proposedSolution || '',
       potentialRevenue: Number(idea.potentialRevenue) || 50000,
@@ -1102,14 +1215,25 @@ class LocalDatabase {
   }
 
   public createExperiment(exp: Partial<Experiment>, actor: AuditLog['actor'] = 'damo'): Experiment {
+    if (!exp.title || typeof exp.title !== 'string' || !exp.title.trim()) {
+      throw new Error('Validation Error: Experiment title is required.');
+    }
+    if (!exp.hypothesis || typeof exp.hypothesis !== 'string' || !exp.hypothesis.trim()) {
+      throw new Error('Validation Error: Falsifiable commercial hypothesis is required.');
+    }
+    const durationDays = Number(exp.durationDays !== undefined ? exp.durationDays : 7);
+    if (!Number.isInteger(durationDays) || durationDays <= 0 || durationDays > 365) {
+      throw new Error('Validation Error: durationDays must be an integer between 1 and 365.');
+    }
+
     const newExp: Experiment = {
       id: `exp-${Date.now()}`,
       ideaId: exp.ideaId,
-      title: exp.title || '7-Day Validation Pilot',
-      hypothesis: exp.hypothesis || 'Target merchants will commit an advance payment.',
-      durationDays: Number(exp.durationDays) || 7,
+      title: exp.title.trim(),
+      hypothesis: exp.hypothesis.trim(),
+      durationDays,
       startDate: exp.startDate || new Date().toISOString().split('T')[0],
-      endDate: exp.endDate || new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
+      endDate: exp.endDate || new Date(Date.now() + durationDays * 86400000).toISOString().split('T')[0],
       metricsTracked: exp.metricsTracked || 'Inquiries, Conversion %, Deposits banked',
       successCriteria: exp.successCriteria || 'At least 3 paying customers',
       outcome: exp.outcome || 'running',
@@ -1139,10 +1263,17 @@ class LocalDatabase {
   }
 
   public createDecision(decision: Partial<StrategicDecision>, actor: AuditLog['actor'] = 'damo'): StrategicDecision {
+    if (!decision.title || typeof decision.title !== 'string' || !decision.title.trim()) {
+      throw new Error('Validation Error: Decision title is required.');
+    }
+    if (!decision.rationale || typeof decision.rationale !== 'string' || !decision.rationale.trim()) {
+      throw new Error('Validation Error: Strategic rationale is required.');
+    }
+
     const newDecision: StrategicDecision = {
       id: `dec-${Date.now()}`,
-      title: decision.title || 'Strategic Policy Shift',
-      rationale: decision.rationale || '',
+      title: decision.title.trim(),
+      rationale: decision.rationale.trim(),
       authorId: decision.authorId || 'damo',
       authorName: decision.authorName || 'Damo',
       expectedOutcome: decision.expectedOutcome || '',
@@ -1164,13 +1295,69 @@ class LocalDatabase {
     return newDecision;
   }
 
-  public updateDecisionStatus(id: string, status: StrategicDecision['status'], outcomeNote?: string, permanentRule?: string, actor: AuditLog['actor'] = 'damo'): StrategicDecision {
+  public updateDecisionStatus(
+    id: string,
+    statusInput: string,
+    actor?: string,
+    outcomeNote?: string,
+    permanentRule?: string
+  ): StrategicDecision {
     const dec = this.db.decisions.find((d) => d.id === id);
-    if (!dec) throw new Error('Decision not found');
-    dec.status = status;
+    if (!dec) throw new Error(`Decision with ID '${id}' not found.`);
+
+    if (!actor || actor !== 'damo') {
+      throw new Error(`Founder Authorization Required: Only founder Damo can authorize strategic decisions (received: '${actor || 'unspecified'}').`);
+    }
+
+    const normalizedStatus = (statusInput === 'pilot_first' ? 'in_pilot' : statusInput) as DecisionStatus;
+
+    if (!VALIDATION_RULES.DECISION_STATUSES.includes(normalizedStatus)) {
+      throw new Error(`Invalid decision status '${statusInput}'. Allowed: ${VALIDATION_RULES.DECISION_STATUSES.join(', ')}, pilot_first`);
+    }
+
+    const currentStatus = dec.status;
+
+    // Strict founder lifecycle validation:
+    // proposed -> pilot_first (in_pilot) / rejected / approved -> executed / reviewed
+    if (normalizedStatus === 'approved') {
+      if (currentStatus !== 'proposed' && currentStatus !== 'in_pilot') {
+        throw new Error(`Invalid transition: cannot approve a decision that is currently '${currentStatus}'. Valid lifecycle: proposed -> pilot_first / approved.`);
+      }
+      dec.approvedBy = 'damo';
+      dec.approvedAt = new Date().toISOString();
+    } else if (normalizedStatus === 'in_pilot') {
+      if (currentStatus !== 'proposed') {
+        throw new Error(`Invalid transition: only proposed decisions can move to in_pilot (current: '${currentStatus}').`);
+      }
+    } else if (normalizedStatus === 'rejected') {
+      if (currentStatus === 'executed') {
+        throw new Error('Invalid transition: cannot reject a decision that has already been executed.');
+      }
+      if (currentStatus === 'reviewed') {
+        throw new Error('Invalid transition: cannot reject a decision that has already been reviewed.');
+      }
+    } else if (normalizedStatus === 'executed') {
+      if (currentStatus !== 'approved' && currentStatus !== 'in_pilot') {
+        throw new Error(`Invalid transition: cannot execute decision before founder approval or pilot (current: '${currentStatus}').`);
+      }
+    } else if (normalizedStatus === 'reviewed') {
+      if (currentStatus !== 'executed' && currentStatus !== 'approved' && currentStatus !== 'in_pilot') {
+        throw new Error(`Invalid transition: cannot mark decision as reviewed before approval or pilot (current: '${currentStatus}').`);
+      }
+    }
+
+    dec.status = normalizedStatus;
     if (outcomeNote) dec.actualOutcome = outcomeNote;
     if (permanentRule) dec.permanentRule = permanentRule;
-    this.logAudit(actor, 'UPDATE_DECISION_STATUS', { decisionId: id, status, permanentRule });
+
+    this.logAudit(actor as any || 'damo', `DECISION_${normalizedStatus.toUpperCase()}`, {
+      decisionId: id,
+      title: dec.title,
+      from: currentStatus,
+      to: normalizedStatus,
+      outcomeNote,
+      permanentRule,
+    });
     this.persist();
     return dec;
   }
@@ -1270,6 +1457,305 @@ class LocalDatabase {
     if (cumulative >= 10000000) unlock('CRORE_CLUB');
     if (cumulative >= 1000000000) unlock('ONE_BILLION_CONQUEST');
     if (this.db.company.streakDays >= 4) unlock('STREAK_4');
+  }
+
+  // ==================== PENDING ACTIONS & APPROVAL GATE ====================
+
+  public proposeAction(actionData: {
+    tool: string;
+    params: any;
+    explanation?: string;
+    risk?: string;
+    proposedBy?: 'ai_coo' | 'damo' | 'partner' | 'assistant';
+    expiresInHours?: number;
+  }): PendingAction {
+    const { tool, params } = actionData;
+    if (!VALIDATION_RULES.MUTATING_TOOLS.includes(tool as any)) {
+      throw new Error(`Validation Error: Tool '${tool}' is not an authorized mutating tool. Allowed: ${VALIDATION_RULES.MUTATING_TOOLS.join(', ')}`);
+    }
+
+    // Pre-validate tool params
+    if (tool === 'create_task') {
+      if (!params?.title || typeof params.title !== 'string') {
+        throw new Error('Validation Error: create_task requires a title string.');
+      }
+      if (params.ownerId && !VALIDATION_RULES.OWNER_IDS.includes(params.ownerId)) {
+        throw new Error(`Validation Error: create_task ownerId must be one of: ${VALIDATION_RULES.OWNER_IDS.join(', ')}`);
+      }
+    } else if (tool === 'create_lead') {
+      if (!params?.businessName || typeof params.businessName !== 'string') {
+        throw new Error('Validation Error: create_lead requires a businessName string.');
+      }
+    } else if (tool === 'create_idea') {
+      if (!params?.title || !params?.problem) {
+        throw new Error('Validation Error: create_idea requires title and problem.');
+      }
+    } else if (tool === 'create_experiment') {
+      if (!params?.title || !params?.hypothesis) {
+        throw new Error('Validation Error: create_experiment requires title and hypothesis.');
+      }
+    } else if (tool === 'create_strategic_decision') {
+      if (!params?.title || !params?.rationale) {
+        throw new Error('Validation Error: create_strategic_decision requires title and rationale.');
+      }
+    } else if (tool === 'adapt_task_difficulty') {
+      if (!params?.taskId || !params?.newTargetTitle) {
+        throw new Error('Validation Error: adapt_task_difficulty requires taskId and newTargetTitle.');
+      }
+    } else if (tool === 'complete_task') {
+      if (!params?.taskId) {
+        throw new Error('Validation Error: complete_task requires taskId.');
+      }
+    } else if (tool === 'update_lead_stage') {
+      if (!params?.leadId || !params?.status) {
+        throw new Error('Validation Error: update_lead_stage requires leadId and status.');
+      }
+    }
+
+    const proposedBy = actionData.proposedBy || 'ai_coo';
+    const isSensitive =
+      tool === 'create_strategic_decision' ||
+      (tool === 'create_task' && (params.priority === 'critical' || (params.revenueRelation || 0) >= 50000));
+
+    const pendingAction: PendingAction = {
+      id: `act-${Date.now()}-${Math.random().toString(36).substring(7)}`,
+      tool,
+      params: JSON.parse(JSON.stringify(params || {})), // Deep clone snapshot
+      explanation: actionData.explanation || `COO proposes executing [${tool}]: ${params.title || params.businessName || 'operational action'}`,
+      risk: actionData.risk || (isSensitive ? 'Strategic shift: requires explicit founder review.' : 'Operational mutation.'),
+      proposedBy,
+      proposedAt: new Date().toISOString(),
+      status: 'pending',
+      expiresAt: new Date(Date.now() + (actionData.expiresInHours || 48) * 3600000).toISOString(),
+    };
+
+    if (!this.db.pending_actions) this.db.pending_actions = [];
+    this.db.pending_actions.unshift(pendingAction);
+
+    this.logAudit(proposedBy, `PROPOSE_ACTION_${tool.toUpperCase()}`, {
+      actionId: pendingAction.id,
+      tool,
+      params: pendingAction.params,
+    }, true);
+
+    this.persist();
+    return pendingAction;
+  }
+
+  public getPendingActions(statusFilter?: ActionStatus): PendingAction[] {
+    if (!this.db.pending_actions) this.db.pending_actions = [];
+    const now = new Date();
+
+    // Auto-expire outdated pending actions
+    for (const act of this.db.pending_actions) {
+      if (act.status === 'pending' && act.expiresAt && new Date(act.expiresAt) < now) {
+        act.status = 'expired';
+      }
+    }
+
+    if (statusFilter) {
+      return this.db.pending_actions.filter((a) => a.status === statusFilter);
+    }
+    return this.db.pending_actions;
+  }
+
+  public getPendingActionById(id: string): PendingAction | null {
+    if (!this.db.pending_actions) this.db.pending_actions = [];
+    const act = this.db.pending_actions.find((a) => a.id === id);
+    if (!act) return null;
+    if (act.status === 'pending' && act.expiresAt && new Date(act.expiresAt) < new Date()) {
+      act.status = 'expired';
+    }
+    return act;
+  }
+
+  public approveAction(id: string, actor: string = 'damo'): PendingAction {
+    const act = this.getPendingActionById(id);
+    if (!act) throw new Error(`Pending action with ID '${id}' not found.`);
+
+    if (actor !== 'damo') {
+      throw new Error(`Founder Authorization Required: Only Damo can approve pending actions (received: '${actor}').`);
+    }
+
+    if (act.status === 'expired') {
+      throw new Error(`Cannot approve action '${id}': action has expired.`);
+    }
+
+    if (act.status !== 'pending') {
+      throw new Error(`Cannot approve action '${id}': current status is '${act.status}' (expected 'pending').`);
+    }
+
+    act.status = 'approved';
+    act.approvedBy = 'damo';
+    act.approvedAt = new Date().toISOString();
+
+    this.logAudit('damo', 'APPROVE_ACTION', {
+      actionId: act.id,
+      tool: act.tool,
+    });
+
+    this.persist();
+    return act;
+  }
+
+  public rejectAction(id: string, actor: string = 'damo', reason?: string): PendingAction {
+    const act = this.getPendingActionById(id);
+    if (!act) throw new Error(`Pending action with ID '${id}' not found.`);
+
+    if (actor !== 'damo') {
+      throw new Error(`Founder Authorization Required: Only Damo can reject pending actions.`);
+    }
+
+    if (act.status === 'executed') {
+      throw new Error(`Cannot reject action '${id}': action has already been executed.`);
+    }
+
+    act.status = 'rejected';
+    act.rejectedBy = 'damo';
+    act.rejectedAt = new Date().toISOString();
+    if (reason) act.rejectionReason = reason;
+
+    this.logAudit('damo', 'REJECT_ACTION', {
+      actionId: act.id,
+      tool: act.tool,
+      reason,
+    });
+
+    this.persist();
+    return act;
+  }
+
+  public executeApprovedAction(
+    id: string,
+    actor: string = 'damo',
+    clientParams?: any
+  ): { action: PendingAction; result: any } {
+    const act = this.getPendingActionById(id);
+    if (!act) throw new Error(`Action with ID '${id}' not found.`);
+
+    if (act.status === 'executed') {
+      throw new Error(`Replay Attack Prevented: Action '${id}' has already been executed.`);
+    }
+
+    if (act.status === 'pending') {
+      throw new Error(`Execution Blocked: Action '${id}' is pending and requires founder approval before execution.`);
+    }
+
+    if (act.status === 'rejected') {
+      throw new Error(`Execution Blocked: Action '${id}' was rejected.`);
+    }
+
+    if (act.status === 'expired') {
+      throw new Error(`Execution Blocked: Action '${id}' has expired.`);
+    }
+
+    if (act.status !== 'approved') {
+      throw new Error(`Cannot execute action with status '${act.status}'.`);
+    }
+
+    if (act.approvedBy !== 'damo') {
+      throw new Error(`Execution Blocked: Action '${id}' lacks authentic founder approval by Damo.`);
+    }
+
+    if (!VALIDATION_RULES.MUTATING_TOOLS.includes(act.tool as any)) {
+      throw new Error(`Security Violation: Tool '${act.tool}' is not in the approved mutating tool allowlist.`);
+    }
+
+    // Tamper detection: if client provides params, they must match the approved params
+    if (clientParams !== undefined && clientParams !== null) {
+      const approvedStr = JSON.stringify(act.params);
+      const clientStr = JSON.stringify(clientParams);
+      if (approvedStr !== clientStr) {
+        throw new Error('Parameter Tamper Detected: submitted parameters do not match approved action parameters.');
+      }
+    }
+
+    // Execute through strict internal handlers using the approved params
+    let result: any = null;
+    const params = act.params;
+
+    if (act.tool === 'create_task') {
+      result = this.createTask(params, 'damo');
+    } else if (act.tool === 'adapt_task_difficulty') {
+      result = this.adaptTask(params.taskId, params.newTargetTitle, params.newXp || 60, 'damo');
+    } else if (act.tool === 'create_lead') {
+      result = this.createLead(params, 'damo');
+    } else if (act.tool === 'create_idea') {
+      result = this.createIdea(params, 'damo');
+    } else if (act.tool === 'create_experiment') {
+      result = this.createExperiment(params, 'damo');
+    } else if (act.tool === 'create_strategic_decision') {
+      result = this.createDecision(
+        {
+          title: params.title,
+          rationale: params.rationale,
+          expectedOutcome: params.expectedOutcome,
+          riskAssessment: {
+            revenueImpact: params.revenueImpact || 'Moderate impact',
+            customerRisk: params.customerRisk || 'Standard',
+            teamCapacity: params.teamCapacity || 'Standard shift',
+            recommendedPilotDays: params.recommendedPilotDays || 14,
+          },
+        },
+        'damo'
+      );
+    } else if (act.tool === 'complete_task') {
+      result = this.completeTask(params.taskId, params.resultNote, 'damo');
+    } else if (act.tool === 'update_lead_stage') {
+      result = this.updateLeadStage(params.leadId, params.status, params.notes, 'damo');
+    } else {
+      throw new Error(`Unknown mutating tool: ${act.tool}`);
+    }
+
+    act.status = 'executed';
+    act.executedAt = new Date().toISOString();
+    act.executedBy = actor || 'damo';
+    act.resultId = result?.id;
+
+    this.logAudit(actor as any || 'damo', 'EXECUTE_APPROVED_ACTION', {
+      actionId: act.id,
+      tool: act.tool,
+      resultId: result?.id,
+    });
+
+    this.persist();
+    return { action: act, result };
+  }
+
+  public resetToCleanData(): CompanyStatus {
+    this.db = {
+      schemaVersion: 2,
+      company: {
+        name: 'Uplora',
+        questTarget: 1000000000,
+        monthlyTarget: 100000,
+        currentRunRate: 0,
+        streakDays: 0,
+      },
+      users: INITIAL_BENCHMARK.users.map((u) => ({ ...u, xp: 0, level: 1, streak: 0, dailyCompleted: 0 })),
+      tasks: [],
+      leads: [],
+      revenue: [],
+      checkins: [],
+      ideas: [],
+      experiments: [],
+      decisions: [],
+      opportunities: [],
+      company_memory: INITIAL_BENCHMARK.company_memory,
+      achievements: INITIAL_BENCHMARK.achievements.map((a) => ({ ...a, unlocked: false, unlockedAt: undefined })),
+      audit_logs: [
+        {
+          id: `log-${Date.now()}`,
+          timestamp: new Date().toISOString(),
+          actor: 'damo',
+          action: 'CLEAN_DATA_INITIALIZATION',
+          details: 'Company data reset to clean slate (zero benchmark revenue).',
+        },
+      ],
+      pending_actions: [],
+    };
+    this.persist();
+    return this.getCompanyStatus();
   }
 
   public exportBackup() {

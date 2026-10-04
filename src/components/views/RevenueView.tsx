@@ -139,6 +139,21 @@ export const RevenueView: React.FC<RevenueViewProps> = ({
         </form>
       )}
 
+      {/* Benchmark Data Notice */}
+      {status?.isBenchmarkBaseline && (
+        <div className="p-3.5 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-center justify-between gap-3 text-xs text-amber-300">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0 text-amber-400" />
+            <span>
+              <strong>Benchmark / Demo Data Active:</strong> The ₹40,000 baseline is seeded demo data for modeling calculations. Verified live revenue collected: <strong>{formatINR(status?.verifiedLiveRevenue || 0)}</strong>.
+            </span>
+          </div>
+          <span className="text-[11px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-200 border border-amber-500/30 shrink-0 font-medium">
+            Demo Baseline
+          </span>
+        </div>
+      )}
+
       {/* Top 3 Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-1">
@@ -157,7 +172,9 @@ export const RevenueView: React.FC<RevenueViewProps> = ({
             {formatINR(cumulativeRev)}
           </div>
           <div className="text-[11px] text-slate-400">
-            Since inception Dec 2025
+            {status?.verifiedLiveRevenue !== undefined && status.verifiedLiveRevenue > 0
+              ? `Live verified: ${formatINR(status.verifiedLiveRevenue)}`
+              : 'Seeded factory demo baseline'}
           </div>
         </div>
 
@@ -268,7 +285,14 @@ export const RevenueView: React.FC<RevenueViewProps> = ({
               {revenue.map((r) => (
                 <tr key={r.id} className="hover:bg-slate-800/30 transition">
                   <td className="p-3 font-semibold text-white">
-                    <div>{r.clientName}</div>
+                    <div className="flex items-center gap-1.5">
+                      <span>{r.clientName}</span>
+                      {r.isBenchmark && (
+                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/10 border border-amber-500/30 text-amber-300 font-mono">
+                          Benchmark Demo
+                        </span>
+                      )}
+                    </div>
                     {r.notes && <div className="text-[10px] text-slate-400 font-normal">{r.notes}</div>}
                   </td>
                   <td className="p-3">

@@ -19,6 +19,8 @@ interface BackupViewProps {
 export const BackupView: React.FC<BackupViewProps> = ({ status, onRefreshData }) => {
   const [importStatus, setImportStatus] = useState<string | null>(null);
   const [isResetting, setIsResetting] = useState(false);
+  const [confirmBenchmarkReset, setConfirmBenchmarkReset] = useState(false);
+  const [confirmCleanReset, setConfirmCleanReset] = useState(false);
 
   const handleDownloadBackup = () => {
     window.location.href = '/api/backup/export';
@@ -52,15 +54,28 @@ export const BackupView: React.FC<BackupViewProps> = ({ status, onRefreshData })
   };
 
   const handleResetBenchmark = async () => {
-    if (!confirm('Are you sure you want to reset database to the Uplora benchmark factory state?')) {
-      return;
-    }
     setIsResetting(true);
+    setConfirmBenchmarkReset(false);
     try {
       const res = await fetch('/api/backup/reset', { method: 'POST' });
       const data = await res.json();
       if (data.success) {
         setImportStatus('Database reset to Uplora benchmark factory state!');
+        onRefreshData();
+      }
+    } finally {
+      setIsResetting(false);
+    }
+  };
+
+  const handleResetClean = async () => {
+    setIsResetting(true);
+    setConfirmCleanReset(false);
+    try {
+      const res = await fetch('/api/backup/clean', { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        setImportStatus('Company reset to completely clean data (zero benchmark baseline)!');
         onRefreshData();
       }
     } finally {
@@ -136,24 +151,87 @@ export const BackupView: React.FC<BackupViewProps> = ({ status, onRefreshData })
         </div>
       </div>
 
-      {/* Benchmark Reset Zone */}
-      <div className="bg-red-950/20 border border-red-500/30 rounded-2xl p-5 space-y-3">
-        <div className="flex items-center gap-2 text-sm font-bold text-red-400">
-          <AlertTriangle className="w-4 h-4" />
-          <span>Reset to Uplora Benchmark Factory State</span>
-        </div>
-        <p className="text-xs text-slate-400 leading-relaxed">
-          Restores default benchmark data: ₹40,000 monthly baseline, 3 characters (Damo, Partner, Assistant), real initial leads (Velan Silks, Kaveri Dental), and foundational tasks.
-        </p>
+      {/* Benchmark & Clean Slate Reset Zone */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Benchmark Demo Reset */}
+        <div className="bg-amber-950/20 border border-amber-500/30 rounded-2xl p-5 space-y-3 flex flex-col justify-between">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm font-bold text-amber-400">
+              <RotateCcw className="w-4 h-4" />
+              <span>Reset to Benchmark Demo Dataset</span>
+            </div>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Restores standard benchmark factory dataset: ₹40,000 monthly demo baseline, 3 characters (Damo, Partner, Assistant), real initial leads (Velan Silks, Kaveri Dental), and foundational tasks.
+            </p>
+          </div>
 
-        <button
-          onClick={handleResetBenchmark}
-          disabled={isResetting}
-          className="px-4 py-2 rounded-xl bg-red-600/80 hover:bg-red-600 text-white text-xs font-bold transition flex items-center gap-2 cursor-pointer disabled:opacity-50"
-        >
-          <RotateCcw className="w-4 h-4" />
-          <span>{isResetting ? 'Resetting...' : 'Reset to Benchmark Factory State'}</span>
-        </button>
+          {!confirmBenchmarkReset ? (
+            <button
+              onClick={() => setConfirmBenchmarkReset(true)}
+              disabled={isResetting}
+              className="w-full py-2.5 rounded-xl bg-amber-600/80 hover:bg-amber-600 text-slate-950 text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            >
+              <RotateCcw className="w-4 h-4" />
+              <span>Reset to Benchmark Baseline</span>
+            </button>
+          ) : (
+            <div className="flex gap-2">
+              <button
+                onClick={handleResetBenchmark}
+                disabled={isResetting}
+                className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer disabled:opacity-50"
+              >
+                <span>Confirm Benchmark Reset</span>
+              </button>
+              <button
+                onClick={() => setConfirmBenchmarkReset(false)}
+                className="px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Clean Slate Reset */}
+        <div className="bg-red-950/20 border border-red-500/30 rounded-2xl p-5 space-y-3 flex flex-col justify-between">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-sm font-bold text-red-400">
+              <AlertTriangle className="w-4 h-4" />
+              <span>Start Clean Company Slate</span>
+            </div>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Wipes all demo data and resets company ledger to zero: ₹0 verified revenue, 0 tasks, 0 leads, fresh Level 1 profiles. Perfect for beginning real commercial operations from absolute scratch.
+            </p>
+          </div>
+
+          {!confirmCleanReset ? (
+            <button
+              onClick={() => setConfirmCleanReset(true)}
+              disabled={isResetting}
+              className="w-full py-2.5 rounded-xl bg-red-600/80 hover:bg-red-600 text-white text-xs font-bold transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            >
+              <AlertTriangle className="w-4 h-4" />
+              <span>Start Clean Slate (Zero Demo Revenue)</span>
+            </button>
+          ) : (
+            <div className="flex gap-2">
+              <button
+                onClick={handleResetClean}
+                disabled={isResetting}
+                className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-500 text-white text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer disabled:opacity-50"
+              >
+                <span>Confirm Clean Slate Wipe</span>
+              </button>
+              <button
+                onClick={() => setConfirmCleanReset(false)}
+                className="px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

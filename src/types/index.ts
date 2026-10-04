@@ -137,6 +137,8 @@ export interface Experiment {
   createdAt: string;
 }
 
+export type DecisionStatus = 'proposed' | 'in_pilot' | 'approved' | 'rejected' | 'executed' | 'reviewed';
+
 export interface StrategicDecision {
   id: string;
   title: string;
@@ -144,7 +146,7 @@ export interface StrategicDecision {
   authorId: string;
   authorName: string;
   expectedOutcome: string;
-  status: 'proposed' | 'approved' | 'rejected' | 'in_pilot';
+  status: DecisionStatus;
   reviewDate: string;
   riskAssessment: {
     revenueImpact: string;
@@ -152,6 +154,8 @@ export interface StrategicDecision {
     teamCapacity: string;
     recommendedPilotDays: number;
   };
+  approvedBy?: string;
+  approvedAt?: string;
   actualOutcome?: string;
   permanentRule?: string;
   createdAt: string;
@@ -190,15 +194,29 @@ export interface AuditLog {
   approvalStatus?: 'pending' | 'approved' | 'rejected';
 }
 
-export interface ProposedAction {
+export type ActionStatus = 'pending' | 'approved' | 'rejected' | 'executed' | 'expired';
+
+export interface PendingAction {
   id: string;
   tool: string;
   params: any;
   explanation: string;
   risk: string;
-  requiresApproval: boolean;
-  status: 'pending' | 'approved' | 'rejected';
+  proposedBy: 'ai_coo' | 'damo' | 'partner' | 'assistant';
+  proposedAt: string;
+  status: ActionStatus;
+  approvedBy?: string;
+  approvedAt?: string;
+  rejectedBy?: string;
+  rejectedAt?: string;
+  rejectionReason?: string;
+  executedAt?: string;
+  executedBy?: string;
+  resultId?: string;
+  expiresAt?: string;
 }
+
+export type ProposedAction = PendingAction;
 
 export interface CompanyStatus {
   name: string;
@@ -214,6 +232,9 @@ export interface CompanyStatus {
   pipelineValue: number;
   hotLeadsCount: number;
   overdueFollowupsCount: number;
+  benchmarkRevenue?: number;
+  verifiedLiveRevenue?: number;
+  isBenchmarkBaseline?: boolean;
   healthScores: {
     revenue: number;
     sales: number;

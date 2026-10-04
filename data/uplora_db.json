@@ -495,10 +495,11 @@
   "audit_logs": [
     {
       "id": "log-1",
-      "timestamp": "2026-10-04T21:04:19.496Z",
+      "timestamp": "2026-10-04T21:27:34.060Z",
       "actor": "damo",
       "action": "INITIAL_BOOTSTRAP",
       "details": "Database initialized with Uplora seed benchmark v2."
     }
-  ]
+  ],
+  "pending_actions": []
 }

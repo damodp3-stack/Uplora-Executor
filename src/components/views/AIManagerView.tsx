@@ -106,28 +106,42 @@ I will not flatter you. Ask me what must be executed today, challenge me with st
     setExecutingActionId(action.id);
     setActionError(null);
     try {
-      const res = await fetch('/api/actions/execute', {
+      const actor = currentUser?.id || 'damo';
+
+      // Step 1: Damo explicitly approves if currently pending
+      if (action.status === 'pending') {
+        const approveRes = await fetch(`/api/actions/${action.id}/approve`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ actor }),
+        });
+        const approveData = await approveRes.json();
+        if (!approveRes.ok) {
+          setActionError(`Approval rejected: ${approveData.error}`);
+          return;
+        }
+      }
+
+      // Step 2: Execute the approved action with parameter verification
+      const execRes = await fetch(`/api/actions/${action.id}/execute`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          tool: action.tool,
-          params: action.params,
-        }),
+        body: JSON.stringify({ actor, params: action.params }),
       });
-      const data = await res.json();
-      if (data.success) {
-        // Update local status of action
+      const data = await execRes.json();
+      if (execRes.ok && data.success) {
+        // Update local status of action to executed
         setMessages((prev) =>
           prev.map((msg) => ({
             ...msg,
             proposedActions: msg.proposedActions?.map((act) =>
-              act.id === action.id ? { ...act, status: 'approved' } : act
+              act.id === action.id ? { ...act, status: 'executed' } : act
             ),
           }))
         );
         if (onRefreshData) onRefreshData();
       } else {
-        setActionError(`Action failed: ${data.error}`);
+        setActionError(`Execution failed: ${data.error}`);
       }
     } catch (err: any) {
       setActionError(`Failed to execute action: ${err.message}`);
@@ -136,15 +150,25 @@ I will not flatter you. Ask me what must be executed today, challenge me with st
     }
   };
 
-  const handleDismissAction = (actionId: string) => {
-    setMessages((prev) =>
-      prev.map((msg) => ({
-        ...msg,
-        proposedActions: msg.proposedActions?.map((act) =>
-          act.id === actionId ? { ...act, status: 'rejected' } : act
-        ),
-      }))
-    );
+  const handleDismissAction = async (actionId: string) => {
+    try {
+      const actor = currentUser?.id || 'damo';
+      await fetch(`/api/actions/${actionId}/reject`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ actor, reason: 'Dismissed by founder' }),
+      });
+      setMessages((prev) =>
+        prev.map((msg) => ({
+          ...msg,
+          proposedActions: msg.proposedActions?.map((act) =>
+            act.id === actionId ? { ...act, status: 'rejected' } : act
+          ),
+        }))
+      );
+    } catch (err: any) {
+      setActionError(`Failed to dismiss action: ${err.message}`);
+    }
   };
 
   const QUICK_PROMPTS = [
@@ -244,6 +268,7 @@ I will not flatter you. Ask me what must be executed today, challenge me with st
                     </div>
 
                     {m.proposedActions.map((action) => {
+                      const isExecuted = action.status === 'executed';
                       const isApproved = action.status === 'approved';
                       const isRejected = action.status === 'rejected';
 
@@ -251,8 +276,10 @@ I will not flatter you. Ask me what must be executed today, challenge me with st
                         <div
                           key={action.id}
                           className={`p-3.5 rounded-xl border transition ${
-                            isApproved
-                              ? 'bg-emerald-950/20 border-emerald-500/40'
+                            isExecuted
+                              ? 'bg-emerald-950/30 border-emerald-500/50'
+                              : isApproved
+                              ? 'bg-cyan-950/20 border-cyan-500/40'
                               : isRejected
                               ? 'bg-slate-950/40 border-slate-800 opacity-60'
                               : 'bg-slate-950 border-amber-500/30'
@@ -260,9 +287,14 @@ I will not flatter you. Ask me what must be executed today, challenge me with st
                         >
                           <div className="flex items-start justify-between gap-2">
                             <div>
-                              <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800 text-cyan-400 font-bold">
-                                {action.tool}
-                              </span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-slate-900 border border-slate-800 text-cyan-400 font-bold">
+                                  {action.tool}
+                                </span>
+                                <span className="text-[10px] text-slate-500 font-mono">
+                                  ID: {action.id}
+                                </span>
+                              </div>
                               <div className="font-bold text-white text-xs mt-1">
                                 {action.params.title || action.params.businessName || action.explanation}
                               </div>
@@ -270,14 +302,16 @@ I will not flatter you. Ask me what must be executed today, challenge me with st
 
                             <span
                               className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold ${
-                                isApproved
-                                  ? 'bg-emerald-500/20 text-emerald-400'
+                                isExecuted
+                                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                                  : isApproved
+                                  ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30'
                                   : isRejected
-                                  ? 'bg-red-500/20 text-red-400'
-                                  : 'bg-amber-500/20 text-amber-300'
+                                  ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                                  : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
                               }`}
                             >
-                              {action.status.toUpperCase()}
+                              {action.status === 'pending' ? 'PENDING APPROVAL' : action.status.toUpperCase()}
                             </span>
                           </div>
 
@@ -285,13 +319,13 @@ I will not flatter you. Ask me what must be executed today, challenge me with st
                             <strong>Impact / Risk:</strong> {action.risk}
                           </div>
 
-                          {action.status === 'pending' && (
+                          {(action.status === 'pending' || action.status === 'approved') && (
                             <div className="mt-3 pt-2 border-t border-slate-800/80 flex justify-end gap-2">
                               <button
                                 onClick={() => handleDismissAction(action.id)}
                                 className="px-3 py-1 rounded bg-slate-800 text-slate-400 hover:text-white transition"
                               >
-                                Dismiss
+                                Reject / Dismiss
                               </button>
                               <button
                                 onClick={() => handleExecuteAction(action)}
@@ -299,7 +333,7 @@ I will not flatter you. Ask me what must be executed today, challenge me with st
                                 className="flex items-center gap-1.5 px-3.5 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition shadow-sm cursor-pointer disabled:opacity-50"
                               >
                                 <Play className="w-3 h-3" />
-                                <span>{executingActionId === action.id ? 'Executing...' : 'Authorize & Execute'}</span>
+                                <span>{executingActionId === action.id ? 'Processing...' : 'Authorize & Execute'}</span>
                               </button>
                             </div>
                           )}
